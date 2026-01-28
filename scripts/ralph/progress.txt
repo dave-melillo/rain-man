@@ -1,0 +1,8 @@
+# Rain Man Progress Log
+
+## Project Overview
+Casino strategy app focusing on blackjack basic strategy.
+Tech: Next.js 14 + Tailwind (frontend), FastAPI optional for backend later.
+
+## Iteration Log
+(Ralph will append learnings here)
