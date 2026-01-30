@@ -77,11 +77,12 @@ function StrategyCell({ action, playerHand, dealerCard, onSelect, isSelected }: 
     <button
       onClick={() => onSelect(String(playerHand), String(dealerCard), action)}
       className={`
-        strategy-cell w-10 h-10 md:w-12 md:h-12 rounded-md font-bold text-white text-sm
+        strategy-cell w-11 h-11 md:w-12 md:h-12 rounded-md font-bold text-white text-sm
         ${ACTION_COLORS[action]}
         ${isSelected ? "ring-2 ring-casino-gold ring-offset-2 ring-offset-casino-dark scale-110 z-10" : ""}
         shadow-sm
       `}
+      aria-label={`${ACTION_NAMES[action]} for ${playerHand} vs dealer ${dealerCard}`}
     >
       {action}
     </button>
@@ -164,7 +165,7 @@ export default function StrategyChart() {
                   <th className="p-2 text-gray-400 text-sm">Your Hand</th>
                   {DEALER_CARDS.map((card) => (
                     <th key={card} className="p-2 text-center">
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-casino-card rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-11 h-11 md:w-12 md:h-12 bg-casino-card rounded-lg flex items-center justify-center text-white font-bold">
                         {card}
                       </div>
                     </th>
@@ -181,7 +182,7 @@ export default function StrategyChart() {
                 {HARD_TOTALS.map((total) => (
                   <tr key={total}>
                     <td className="p-2">
-                      <div className="w-12 md:w-14 h-10 md:h-12 bg-casino-felt rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-12 md:w-14 h-11 md:h-12 bg-casino-felt rounded-lg flex items-center justify-center text-white font-bold">
                         {total}
                       </div>
                     </td>
@@ -210,7 +211,7 @@ export default function StrategyChart() {
                   <th className="p-2 text-gray-400 text-sm">Your Hand</th>
                   {DEALER_CARDS.map((card) => (
                     <th key={card} className="p-2 text-center">
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-casino-card rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-11 h-11 md:w-12 md:h-12 bg-casino-card rounded-lg flex items-center justify-center text-white font-bold">
                         {card}
                       </div>
                     </th>
@@ -227,7 +228,7 @@ export default function StrategyChart() {
                 {SOFT_TOTALS.map((total) => (
                   <tr key={total}>
                     <td className="p-2">
-                      <div className="w-12 md:w-14 h-10 md:h-12 bg-casino-felt rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-12 md:w-14 h-11 md:h-12 bg-casino-felt rounded-lg flex items-center justify-center text-white font-bold text-sm">
                         A,{total - 11}
                       </div>
                     </td>
@@ -256,7 +257,7 @@ export default function StrategyChart() {
                   <th className="p-2 text-gray-400 text-sm">Your Pair</th>
                   {DEALER_CARDS.map((card) => (
                     <th key={card} className="p-2 text-center">
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-casino-card rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-11 h-11 md:w-12 md:h-12 bg-casino-card rounded-lg flex items-center justify-center text-white font-bold">
                         {card}
                       </div>
                     </th>
@@ -273,7 +274,7 @@ export default function StrategyChart() {
                 {PAIRS.map((pair) => (
                   <tr key={pair}>
                     <td className="p-2">
-                      <div className="w-12 md:w-14 h-10 md:h-12 bg-casino-felt rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-12 md:w-14 h-11 md:h-12 bg-casino-felt rounded-lg flex items-center justify-center text-white font-bold text-sm">
                         {pair}
                       </div>
                     </td>

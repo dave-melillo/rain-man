@@ -180,11 +180,12 @@ export default function QuickLookup() {
               <button
                 key={`c1-${card}`}
                 onClick={() => handleCardSelect(card, "card1")}
-                className={`w-10 h-12 rounded-lg font-bold transition-all ${
+                className={`w-11 h-12 rounded-lg font-bold transition-all ${
                   card1 === card
                     ? "bg-casino-gold text-black"
                     : "bg-casino-card text-white hover:bg-casino-felt"
                 }`}
+                aria-label={`Select ${card} as first card`}
               >
                 {card}
               </button>
@@ -199,11 +200,12 @@ export default function QuickLookup() {
               <button
                 key={`c2-${card}`}
                 onClick={() => handleCardSelect(card, "card2")}
-                className={`w-10 h-12 rounded-lg font-bold transition-all ${
+                className={`w-11 h-12 rounded-lg font-bold transition-all ${
                   card2 === card
                     ? "bg-casino-gold text-black"
                     : "bg-casino-card text-white hover:bg-casino-felt"
                 }`}
+                aria-label={`Select ${card} as second card`}
               >
                 {card}
               </button>
@@ -218,11 +220,12 @@ export default function QuickLookup() {
               <button
                 key={`d-${card}`}
                 onClick={() => handleCardSelect(card, "dealer")}
-                className={`w-10 h-12 rounded-lg font-bold transition-all ${
+                className={`w-11 h-12 rounded-lg font-bold transition-all ${
                   dealerCard === card
                     ? "bg-casino-felt-light text-white ring-2 ring-casino-gold"
                     : "bg-casino-card text-white hover:bg-casino-felt"
                 }`}
+                aria-label={`Select dealer ${card}`}
               >
                 {card}
               </button>
@@ -253,10 +256,10 @@ export default function QuickLookup() {
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1">Your Hand</div>
             <div className="flex gap-1">
-              <div className={`w-10 h-14 rounded-lg flex items-center justify-center font-bold ${card1 ? "bg-casino-gold text-black" : "bg-casino-card text-gray-600"}`}>
+              <div className={`w-11 h-14 rounded-lg flex items-center justify-center font-bold ${card1 ? "bg-casino-gold text-black" : "bg-casino-card text-gray-600"}`}>
                 {card1 || "?"}
               </div>
-              <div className={`w-10 h-14 rounded-lg flex items-center justify-center font-bold ${card2 ? "bg-casino-gold text-black" : "bg-casino-card text-gray-600"}`}>
+              <div className={`w-11 h-14 rounded-lg flex items-center justify-center font-bold ${card2 ? "bg-casino-gold text-black" : "bg-casino-card text-gray-600"}`}>
                 {card2 || "?"}
               </div>
             </div>
@@ -264,7 +267,7 @@ export default function QuickLookup() {
           <div className="text-gray-500 text-2xl">vs</div>
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1">Dealer</div>
-            <div className={`w-10 h-14 rounded-lg flex items-center justify-center font-bold ${dealerCard ? "bg-casino-felt text-white" : "bg-casino-card text-gray-600"}`}>
+            <div className={`w-11 h-14 rounded-lg flex items-center justify-center font-bold ${dealerCard ? "bg-casino-felt text-white" : "bg-casino-card text-gray-600"}`}>
               {dealerCard || "?"}
             </div>
           </div>
