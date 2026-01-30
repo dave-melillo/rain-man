@@ -163,3 +163,47 @@ Completed first batch of PWA conversion work per PRD-v2.md:
 - US-108-109: Trainer improvements (difficulty modes, stats tracking)
 - US-110: Responsive design audit across devices
 - US-111: Accessibility improvements (ARIA, keyboard nav)
+
+---
+
+### 2025-01-29 - Wolverine: Phase 1 Batch 2 - US-103 Install Prompt ✅
+**Implementation: Smart "Add to Home Screen" prompt**
+
+Completed US-103 per PRD requirements:
+
+**Install Prompt Component:**
+- Created `/src/components/InstallPrompt.tsx`
+  - Visit counter in localStorage (triggers after 2nd visit)
+  - Time-based trigger (30 seconds on 1st visit)
+  - Dismissible with 7-day localStorage preference
+  - iOS Safari detection with manual instructions
+  - Android/Chrome uses beforeinstallprompt API
+  - Casino-themed styling: felt green background, gold CTA button
+  - Slide-up animation on display
+  - Positioned above bottom nav (bottom-20 on mobile, bottom-4 on desktop)
+  - Responsive: full width on mobile, max-w-md on desktop
+
+**Integration:**
+- Added to layout.tsx (renders on all pages)
+- Added slide-up animation keyframes to globals.css
+
+**Build Test:**
+✅ Successfully ran `npm run build`
+- All 12 pages compile without errors
+- Total bundle size stable: ~87.3 kB shared
+- Exit code: 0
+
+**User Experience:**
+- Shows after 2+ visits OR 30 seconds (whichever comes first)
+- "Not Now" button dismisses for 7 days
+- iOS users see instructions for manual install via share button
+- Android users get native install prompt
+- RM logo (casino chip) in gold circle
+- Clean close button (×) in top-right
+
+**Files Created/Modified:**
+- Created: `src/components/InstallPrompt.tsx`
+- Modified: `src/app/layout.tsx` (import + render InstallPrompt)
+- Modified: `src/app/globals.css` (added slide-up animation)
+
+**Next:** US-105 (Touch Gestures) - Swipe navigation between game sections

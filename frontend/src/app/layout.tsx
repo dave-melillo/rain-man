@@ -3,6 +3,7 @@ import Link from "next/link";
 import Script from "next/script";
 import BottomNav from "@/components/BottomNav";
 import InstallPrompt from "@/components/InstallPrompt";
+import SwipeNavigation from "@/components/SwipeNavigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -66,7 +67,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-casino-dark antialiased pb-16 md:pb-0">
         <Header />
-        {children}
+        <SwipeNavigation>
+          {children}
+        </SwipeNavigation>
         <BottomNav />
         <InstallPrompt />
         
