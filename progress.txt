@@ -207,3 +207,44 @@ Completed US-103 per PRD requirements:
 - Modified: `src/app/globals.css` (added slide-up animation)
 
 **Next:** US-105 (Touch Gestures) - Swipe navigation between game sections
+
+---
+
+### 2025-01-29 - Wolverine: Phase 1 Batch 2 - US-105 Touch Gestures ✅
+**Implementation: Swipe navigation between game sections**
+
+Completed US-105 per PRD requirements:
+
+**SwipeNavigation Component:**
+- Created `/src/components/SwipeNavigation.tsx`
+  - Wraps all page content to detect touch gestures
+  - Mobile-only detection (viewport < 768px)
+  - Touch event handlers: touchstart, touchmove, touchend
+  - Horizontal vs vertical swipe detection
+  - Minimum swipe distance: 80px (prevents accidental triggers)
+  - Prevents default scroll during horizontal swipes
+  - Navigation order: Blackjack → Craps → Poker → Bankroll
+  - Uses Next.js useRouter for smooth transitions
+  - useCallback for getCurrentIndex to avoid dependency issues
+
+**Integration:**
+- Added to layout.tsx (wraps {children})
+- Works across all game sections and sub-pages (e.g., /blackjack/strategy)
+
+**User Experience:**
+- Swipe left = move to next section
+- Swipe right = move to previous section
+- Respects boundaries (can't swipe past first/last page)
+- Only triggers on deliberate horizontal swipes (ignores vertical scroll)
+
+**Build Test:**
+✅ Successfully ran `npm run build`
+- No ESLint warnings (fixed with useCallback + proper dependencies)
+- All 12 pages compile cleanly
+- Exit code: 0
+
+**Files Created/Modified:**
+- Created: `src/components/SwipeNavigation.tsx`
+- Modified: `src/app/layout.tsx` (import + wrap children)
+
+**Next:** US-108 (Trainer Improvements) - Enhanced blackjack trainer features

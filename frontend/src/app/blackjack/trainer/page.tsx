@@ -60,7 +60,23 @@ interface Question {
   displayHand: string;
 }
 
-function generateQuestion(): Question {
+interface TypeStats {
+  correct: number;
+  total: number;
+}
+
+interface Mistake {
+  question: Question;
+  userAction: string;
+}
+
+function generateQuestion(mistakes?: Mistake[]): Question {
+  // If in review mode and we have mistakes, pick one
+  if (mistakes && mistakes.length > 0) {
+    const randomMistake = mistakes[Math.floor(Math.random() * mistakes.length)];
+    return randomMistake.question;
+  }
+  
   const types: Array<"hard" | "soft" | "pair"> = ["hard", "soft", "pair"];
   const type = types[Math.floor(Math.random() * types.length)];
   
@@ -91,11 +107,20 @@ function generateQuestion(): Question {
 }
 
 export default function TrainerPage() {
-  const [question, setQuestion] = useState<Question>(generateQuestion());
+  const [reviewMode, setReviewMode] = useState(false);
+  const [mistakes, setMistakes] = useState<Mistake[]>([]);
+  const [question, setQuestion] = useState<Question>(() => generateQuestion());
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [streak, setStreak] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const [typeStats, setTypeStats] = useState<Record<string, TypeStats>>({
+    hard: { correct: 0, total: 0 },
+    soft: { correct: 0, total: 0 },
+    pair: { correct: 0, total: 0 },
+  });
+  const [showSummary, setShowSummary] = useState(false);
 
   const actions = ["H", "S", "D", "P", "Ds", "Rh"];
 
@@ -111,20 +136,92 @@ export default function TrainerPage() {
       total: prev.total + 1
     }));
     
+    // Update type-specific stats
+    setTypeStats(prev => ({
+      ...prev,
+      [question.type]: {
+        correct: prev[question.type].correct + (isCorrect ? 1 : 0),
+        total: prev[question.type].total + 1,
+      }
+    }));
+    
     if (isCorrect) {
-      setStreak(prev => prev + 1);
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      setMaxStreak(prev => Math.max(prev, newStreak));
+      
+      // If in review mode and answered correctly, remove this mistake
+      if (reviewMode) {
+        setMistakes(prev => prev.filter(m => 
+          !(m.question.displayHand === question.displayHand && 
+            m.question.dealerCard === question.dealerCard)
+        ));
+      }
     } else {
       setStreak(0);
+      
+      // Add to mistakes if not already there
+      if (!reviewMode) {
+        const mistakeExists = mistakes.some(m => 
+          m.question.displayHand === question.displayHand && 
+          m.question.dealerCard === question.dealerCard
+        );
+        
+        if (!mistakeExists) {
+          setMistakes(prev => [...prev, { question, userAction: action }]);
+        }
+      }
     }
   };
 
   const nextQuestion = () => {
+    setQuestion(generateQuestion(reviewMode ? mistakes : undefined));
+    setSelectedAction(null);
+    setShowResult(false);
+  };
+
+  const resetSession = () => {
+    setScore({ correct: 0, total: 0 });
+    setStreak(0);
+    setMaxStreak(0);
+    setTypeStats({
+      hard: { correct: 0, total: 0 },
+      soft: { correct: 0, total: 0 },
+      pair: { correct: 0, total: 0 },
+    });
+    setMistakes([]);
+    setReviewMode(false);
+    setShowSummary(false);
     setQuestion(generateQuestion());
     setSelectedAction(null);
     setShowResult(false);
   };
 
+  const toggleReviewMode = () => {
+    if (mistakes.length === 0 && !reviewMode) {
+      alert("No mistakes to review yet! Keep practicing.");
+      return;
+    }
+    
+    const newReviewMode = !reviewMode;
+    setReviewMode(newReviewMode);
+    setQuestion(generateQuestion(newReviewMode ? mistakes : undefined));
+    setSelectedAction(null);
+    setShowResult(false);
+  };
+
   const accuracy = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+  const getTypeAccuracy = (type: string) => {
+    const stats = typeStats[type];
+    return stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+  };
+
+  // Auto-show summary after 20 questions
+  useEffect(() => {
+    if (score.total >= 20 && score.total % 20 === 0 && !showSummary) {
+      setShowSummary(true);
+    }
+  }, [score.total, showSummary]);
 
   return (
     <main className="min-h-screen bg-casino-dark">
@@ -142,14 +239,18 @@ export default function TrainerPage() {
       {/* Stats Bar */}
       <div className="bg-casino-card border-b border-casino-darker">
         <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-white">{accuracy}%</div>
               <div className="text-xs text-gray-400">Accuracy</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-casino-gold">{streak}</div>
-              <div className="text-xs text-gray-400">Current Streak</div>
+              <div className="text-xs text-gray-400">Streak</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-400">{maxStreak}</div>
+              <div className="text-xs text-gray-400">Best Streak</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-white">{score.correct}/{score.total}</div>
@@ -159,8 +260,164 @@ export default function TrainerPage() {
         </div>
       </div>
 
+      {/* Mode Toggle & Actions */}
+      <div className="max-w-4xl mx-auto px-6 py-4 flex gap-3 flex-wrap">
+        <button
+          onClick={toggleReviewMode}
+          disabled={mistakes.length === 0 && !reviewMode}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+            reviewMode 
+              ? "bg-orange-600 text-white" 
+              : mistakes.length > 0
+                ? "bg-casino-card text-white hover:bg-casino-darker"
+                : "bg-casino-card/50 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          {reviewMode ? "📝 Review Mode ON" : `🔍 Review Mistakes (${mistakes.length})`}
+        </button>
+        
+        <button
+          onClick={() => setShowSummary(true)}
+          disabled={score.total === 0}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+            score.total > 0
+              ? "bg-casino-card text-white hover:bg-casino-darker"
+              : "bg-casino-card/50 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          📊 View Summary
+        </button>
+        
+        <button
+          onClick={resetSession}
+          className="px-4 py-2 rounded-lg font-medium text-sm bg-red-900/50 text-red-400 hover:bg-red-900 transition-all"
+        >
+          🔄 Reset Session
+        </button>
+      </div>
+
+      {/* Summary Modal */}
+      {showSummary && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-casino-darker rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-casino-card flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Session Summary</h2>
+              <button
+                onClick={() => setShowSummary(false)}
+                className="text-gray-400 hover:text-white text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Overall Stats */}
+              <div className="bg-casino-felt rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-casino-gold mb-4">Overall Performance</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-3xl font-bold text-white mb-1">{accuracy}%</div>
+                    <div className="text-sm text-gray-400">Total Accuracy</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-casino-gold mb-1">{maxStreak}</div>
+                    <div className="text-sm text-gray-400">Best Streak</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-white mb-1">{score.correct}</div>
+                    <div className="text-sm text-gray-400">Correct Answers</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-white mb-1">{score.total}</div>
+                    <div className="text-sm text-gray-400">Total Questions</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Type Breakdown */}
+              <div className="bg-casino-felt rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-casino-gold mb-4">Accuracy by Hand Type</h3>
+                <div className="space-y-4">
+                  {["hard", "soft", "pair"].map(type => {
+                    const stats = typeStats[type];
+                    const acc = getTypeAccuracy(type);
+                    const color = acc >= 90 ? "green" : acc >= 70 ? "yellow" : "red";
+                    
+                    return (
+                      <div key={type}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white capitalize font-medium">
+                            {type === "pair" ? "Pairs" : `${type} Totals`}
+                          </span>
+                          <span className={`text-${color}-400 font-bold`}>
+                            {acc}% ({stats.correct}/{stats.total})
+                          </span>
+                        </div>
+                        <div className="h-2 bg-casino-darker rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full bg-${color}-500 transition-all duration-500`}
+                            style={{ width: `${acc}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mistakes */}
+              {mistakes.length > 0 && (
+                <div className="bg-casino-felt rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-casino-gold mb-4">
+                    Mistakes to Review ({mistakes.length})
+                  </h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {mistakes.map((mistake, idx) => (
+                      <div key={idx} className="bg-casino-darker rounded p-3 text-sm">
+                        <div className="text-white">
+                          <span className="font-medium">{mistake.question.displayHand}</span>
+                          {" vs "}
+                          <span className="font-medium">Dealer {mistake.question.dealerCard}</span>
+                        </div>
+                        <div className="text-gray-400 mt-1">
+                          You chose: <span className="text-red-400">{ACTION_NAMES[mistake.userAction]}</span>
+                          {" • "}
+                          Correct: <span className="text-green-400">{ACTION_NAMES[mistake.question.correctAction]}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommendations */}
+              <div className="bg-orange-900/30 border border-orange-600 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-orange-400 mb-3">💡 Recommendations</h3>
+                <ul className="space-y-2 text-gray-300 text-sm">
+                  {accuracy >= 90 && <li>• Excellent! You're ready for the casino floor.</li>}
+                  {accuracy >= 70 && accuracy < 90 && <li>• Good progress! Keep practicing to hit 90%+.</li>}
+                  {accuracy < 70 && <li>• Keep practicing! Aim for 70% before moving up.</li>}
+                  {getTypeAccuracy("soft") < 70 && <li>• Focus on soft hands - they're tricky!</li>}
+                  {getTypeAccuracy("pair") < 70 && <li>• Review pair splitting strategy.</li>}
+                  {mistakes.length > 5 && <li>• Use Review Mode to practice your {mistakes.length} mistakes.</li>}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-6 py-12">
+        {reviewMode && (
+          <div className="bg-orange-900/30 border border-orange-600 rounded-xl p-4 mb-6 text-center">
+            <div className="text-orange-400 font-bold">📝 Review Mode Active</div>
+            <div className="text-sm text-gray-300 mt-1">
+              Practicing your {mistakes.length} mistake{mistakes.length !== 1 ? "s" : ""}
+            </div>
+          </div>
+        )}
+
         {/* Question Card */}
         <div className="bg-gradient-to-br from-casino-felt to-casino-felt-light rounded-2xl p-8 mb-8 shadow-casino">
           <div className="text-center mb-8">
@@ -172,6 +429,7 @@ export default function TrainerPage() {
               <div className="text-4xl font-bold text-white">
                 {question.displayHand}
               </div>
+              <div className="text-xs text-gray-500 mt-1 capitalize">{question.type} total</div>
             </div>
             
             {/* VS */}
@@ -267,6 +525,7 @@ export default function TrainerPage() {
           <li>• Focus on dealer up-cards 2-6 (dealer busting range)</li>
           <li>• Soft hands are tricky - remember you can't bust hitting a soft total</li>
           <li>• Always split Aces and 8s, never split 10s and 5s</li>
+          <li>• Use Review Mode to practice hands you've gotten wrong</li>
         </ul>
       </div>
     </main>
