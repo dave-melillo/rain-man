@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import BottomNav from "@/components/BottomNav";
+import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -67,6 +68,7 @@ export default function RootLayout({
         <Header />
         {children}
         <BottomNav />
+        <InstallPrompt />
         
         {/* Service Worker Registration */}
         <Script id="register-sw" strategy="afterInteractive">
