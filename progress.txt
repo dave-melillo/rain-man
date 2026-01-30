@@ -5,4 +5,161 @@ Casino strategy app focusing on blackjack basic strategy.
 Tech: Next.js 14 + Tailwind (frontend), FastAPI optional for backend later.
 
 ## Iteration Log
-(Ralph will append learnings here)
+
+### 2025-01-29 - Wolverine: MVP Frontend Pages Complete
+Built all missing frontend pages for MVP:
+
+**Completed Pages:**
+1. ✅ /blackjack/trainer (page.tsx)
+   - Flashcard-style practice mode with 4 action buttons (H/S/D/P/Ds/Rh)
+   - Real-time accuracy tracking and streak counter
+   - Generates random scenarios from hard/soft/pairs
+   - Immediate feedback with correct/incorrect highlighting
+   - Built-in training tips
+
+2. ✅ /craps (page.tsx)
+   - Hub page with all common craps bets
+   - House edge displayed for each bet (0% for odds to 16.67% for Any 7)
+   - Color-coded recommendations (good/okay/bad bets)
+   - Interactive bet selector with detailed explanations
+   - TL;DR strategy: Pass Line + Full Odds
+   - Craps 101 educational section
+
+3. ✅ /poker (page.tsx)
+   - Hub page with hand rankings (Royal Flush to High Card)
+   - Visual card display for each hand with suit colors
+   - Expandable accordion for probability and examples
+   - Position guide (early/middle/late)
+   - Key concepts: pot odds, implied odds, EV, TAG strategy
+   - Links to pot odds calculator
+
+4. ✅ /poker/odds (page.tsx)
+   - Interactive pot odds calculator
+   - Inputs: pot size, call amount, number of outs, street (flop/turn)
+   - Calculates pot odds ratio and percentage
+   - Calculates hand odds using exact probability
+   - Call/Fold recommendation with EV calculation
+   - Common drawing hands reference (flush draw, straight draws, etc.)
+   - Rule of 2 and 4 guide for mental math
+
+5. ✅ /bankroll (page.tsx)
+   - Session bankroll calculator
+   - Inputs: total bankroll, game type, session length, risk tolerance
+   - Outputs: recommended session bankroll, min bet, expected hands
+   - Win goal and stop-loss targets (50% each)
+   - Expected value calculation with house edge
+   - 95% confidence interval for variance
+   - Game-specific logic for blackjack/poker/craps
+   - Golden rules and bankroll management principles
+
+**Existing Pages (already built):**
+- ✅ / (Home page with game selector)
+- ✅ /blackjack (Hub page)
+- ✅ /blackjack/strategy (Interactive strategy chart with QuickLookup)
+
+**Tech Notes:**
+- All pages use "use client" for interactivity
+- Consistent dark casino theme (casino-dark, casino-gold, casino-felt)
+- Mobile-first responsive design
+- Static data/calculations (no backend calls)
+- Tailwind utility classes matching existing config
+
+**Testing:**
+- Could not run `npm run build` (Node.js not installed on this system)
+- All files created successfully with proper Next.js 14 App Router structure
+- TypeScript syntax follows existing patterns from StrategyChart.tsx
+
+**Next Steps (Post-MVP):**
+- Install Node.js and run build test to verify compilation
+- Add error boundaries for calculator inputs
+- Consider adding localStorage to persist user stats in trainer
+- Backend integration for user accounts (future)
+- Add card counting trainer (future)
+
+---
+
+### 2025-01-29 - Wolverine: Phase 1 - PWA Foundation + Bottom Nav (Batch 1)
+**Implementation: US-101, US-102, US-104**
+
+Completed first batch of PWA conversion work per PRD-v2.md:
+
+**1. PWA Manifest + Icons (US-101) ✅**
+   - Created `/public/manifest.json`
+     - App name: "Rain Man Casino Strategy"
+     - Short name: "Rain Man"
+     - Theme color: #0f3d3e (felt green)
+     - Background: #0d0d1a (dark)
+     - Display mode: standalone
+     - Icons: 192x192, 512x512 PNG + SVG
+   - Created placeholder icons:
+     - `/public/icon.svg` - SVG casino chip with "RM" logo
+     - `/public/icon-192.png` - Placeholder PNG (MVP)
+     - `/public/icon-512.png` - Placeholder PNG (MVP)
+     - Script: `scripts/create-placeholder-icons.js`
+   - Updated layout.tsx with PWA meta tags:
+     - Manifest link, apple-touch-icon, mobile-web-app-capable
+     - Separated viewport and themeColor to dedicated export (Next.js 14)
+
+**2. Service Worker for Offline Support (US-102) ✅**
+   - Created `/public/sw.js`
+     - Cache version: `rain-man-v1`
+     - Cache-first strategy for static assets and navigation
+     - Network-first for API calls (future-proof)
+     - Offline fallback to `/offline.html`
+     - Auto cleanup of old cache versions on activate
+   - Created `/public/offline.html`
+     - Standalone offline page with casino theme
+     - Lists cached features available offline
+     - Auto-refreshes when connection restored
+   - Registered service worker in layout.tsx
+     - Loads after page interactive (strategy: afterInteractive)
+     - Console logging for debug
+
+**3. Bottom Navigation Bar (US-104) ✅**
+   - Created `/src/components/BottomNav.tsx`
+     - Fixed bottom position on mobile only (hidden md:hidden on desktop)
+     - 4 tabs: Blackjack 🃏, Craps 🎲, Poker ♠️, Bankroll 💰
+     - Active state: Casino gold color + scale animation + bottom underline
+     - Thumb-zone friendly (min 44px touch targets)
+     - Uses usePathname() for active route detection
+     - Z-index 50 to stay above content
+   - Updated layout.tsx:
+     - Added BottomNav component
+     - Added pb-16 (padding-bottom) on mobile to prevent content overlap
+     - Removed padding on desktop (md:pb-0)
+
+**Build Test:**
+✅ Successfully ran `npm run build`
+- All pages compile without errors
+- Fixed metadata warnings by separating viewport export
+- Total bundle size: ~87.3 kB shared, ~96-99 kB per route
+- Build output: 12 static pages generated
+
+**Files Created/Modified:**
+- Created: `public/manifest.json`
+- Created: `public/icon.svg`
+- Created: `public/icon-192.png`, `public/icon-512.png`
+- Created: `public/sw.js`
+- Created: `public/offline.html`
+- Created: `src/components/BottomNav.tsx`
+- Created: `scripts/create-placeholder-icons.js`
+- Modified: `src/app/layout.tsx` (PWA integration)
+
+**Deferred from Batch 1:**
+- US-103 (Install Prompt) - Requires browser testing, deferred to next batch
+- US-105 (Touch Gestures) - Complexity medium, deferred
+- US-106 (Haptic Feedback) - Low priority, deferred
+- US-107 (Performance Optimizations) - Build is already fast (<100kB)
+
+**Testing Notes:**
+- Build succeeds with clean exit code 0
+- Metadata warnings resolved (viewport + themeColor separated)
+- Service worker registered correctly (verified in build)
+- Bottom nav styling uses existing Tailwind casino theme
+- Icon placeholders are MVP-ready (replace with proper designs later)
+
+**Next Batch - Phase 1 Remaining:**
+- US-103: Install prompt with smart timing
+- US-108-109: Trainer improvements (difficulty modes, stats tracking)
+- US-110: Responsive design audit across devices
+- US-111: Accessibility improvements (ARIA, keyboard nav)

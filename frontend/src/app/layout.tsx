@@ -1,10 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
+import BottomNav from "@/components/BottomNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Rain Man - Casino Strategy",
-  description: "Learn to play smarter with math, not luck.",
+  description: "Learn to play smarter with math, not luck. Interactive strategy charts, card counting, and bankroll calculators.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Rain Man",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#0f3d3e",
 };
 
 function Header() {
@@ -40,9 +56,35 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-casino-dark antialiased">
+      <head>
+        {/* PWA Meta Tags */}
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
+      <body className="min-h-screen bg-casino-dark antialiased pb-16 md:pb-0">
         <Header />
         {children}
+        <BottomNav />
+        
+        {/* Service Worker Registration */}
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker
+                  .register('/sw.js')
+                  .then((registration) => {
+                    console.log('SW registered:', registration.scope);
+                  })
+                  .catch((error) => {
+                    console.error('SW registration failed:', error);
+                  });
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   );

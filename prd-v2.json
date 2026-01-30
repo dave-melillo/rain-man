@@ -1,0 +1,670 @@
+{
+  "project": "RainMan",
+  "version": "2.0",
+  "branchName": "wolverine/pwa-premium-buildout",
+  "description": "Rain Man v2: PWA conversion, mobile-first enhancements, and premium freemium features",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "PWA Foundation + Polish",
+      "duration": "2 weeks",
+      "goal": "Ship production-ready PWA with offline capability and mobile optimizations",
+      "userStories": [
+        {
+          "id": "US-101",
+          "phase": 1,
+          "title": "Add Web App Manifest",
+          "description": "As a mobile user, I want to install Rain Man as a PWA so I can access it like a native app.",
+          "acceptanceCriteria": [
+            "Create /frontend/public/manifest.json with name, short_name, icons, theme_color, background_color, display=standalone",
+            "Add 192x192 and 512x512 icon images (casino chip with brain logo concept)",
+            "Link manifest in app/layout.tsx <head>",
+            "Test install prompt appears on Chrome Android and Safari iOS (manual add to home screen)",
+            "Installed app opens in standalone mode (no browser chrome)",
+            "Theme color matches casino felt green (#0f3d3e)"
+          ],
+          "priority": 1,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "Use a simple icon generator for MVP, refine design later"
+        },
+        {
+          "id": "US-102",
+          "phase": 1,
+          "title": "Implement Service Worker for Offline Support",
+          "description": "As a user in a casino with poor WiFi, I want the app to work offline so I can look up strategies without network delays.",
+          "acceptanceCriteria": [
+            "Create /frontend/public/sw.js with cache-first strategy for static assets",
+            "Cache all strategy data (blackjack, craps, poker pages)",
+            "Implement offline fallback page (/offline.html) if route not cached",
+            "Add network-first strategy for API calls (future-proof)",
+            "Version cache (e.g., v1) with automatic cleanup on update",
+            "Register service worker in app/layout.tsx",
+            "Test: Disconnect network, all core pages load from cache",
+            "Test: Update cache version, old cache gets cleared"
+          ],
+          "priority": 1,
+          "estimate": "8 hours",
+          "dependencies": ["US-101"],
+          "notes": "Use Workbox or manual fetch handlers. Start simple, iterate."
+        },
+        {
+          "id": "US-103",
+          "phase": 1,
+          "title": "Build Install Prompt with Smart Timing",
+          "description": "As a returning user, I want to be prompted to install the app so I don't have to use the browser every time.",
+          "acceptanceCriteria": [
+            "Trigger install prompt after 2+ visits OR 30+ seconds on site (localStorage tracking)",
+            "Show custom modal (not default browser prompt): 'Add Rain Man to your home screen for quick access'",
+            "Include 'Install' and 'Not Now' buttons",
+            "If dismissed, don't show again for 7 days (localStorage flag)",
+            "For iOS Safari, show instructions: 'Tap Share → Add to Home Screen'",
+            "Track events: prompt_shown, prompt_accepted, prompt_dismissed (console.log for now)",
+            "Test on Chrome Android (native prompt) and Safari iOS (custom instructions)"
+          ],
+          "priority": 2,
+          "estimate": "6 hours",
+          "dependencies": ["US-101", "US-102"],
+          "notes": "iOS doesn't support beforeinstallprompt, need manual instructions"
+        },
+        {
+          "id": "US-104",
+          "phase": 1,
+          "title": "Add Bottom Navigation Bar (Mobile)",
+          "description": "As a mobile user, I want quick access to all game sections so I don't have to scroll or use back button constantly.",
+          "acceptanceCriteria": [
+            "Create BottomNav component with 4 tabs: Blackjack 🃏, Craps 🎲, Poker ♠️, Bankroll 💰",
+            "Fixed position at bottom on mobile (<768px), hidden on desktop",
+            "Active state: Gold underline + icon color change",
+            "Tapping icon navigates to respective hub page",
+            "Smooth transitions (150ms ease)",
+            "Component sits in app/layout.tsx (rendered on all pages)",
+            "Test: Navigates correctly, active state updates, doesn't overlap content"
+          ],
+          "priority": 2,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "Add z-index: 50 to ensure it's above page content"
+        },
+        {
+          "id": "US-105",
+          "phase": 1,
+          "title": "Implement Touch Gestures (Swipe Navigation)",
+          "description": "As a mobile user, I want to swipe between sections within a game so navigation feels natural like other apps.",
+          "acceptanceCriteria": [
+            "Add swipe left/right gesture detection using touch events or library (e.g., react-use-gesture)",
+            "Within /blackjack/* routes: swipe right → previous page, swipe left → next page",
+            "Within /poker/* routes: same behavior",
+            "Visual feedback: page slides in direction of swipe (subtle transform animation)",
+            "Disable swipes if user is interacting with chart (scrolling or tapping cells)",
+            "Test on iOS Safari and Chrome Android: gestures feel responsive, no accidental triggers"
+          ],
+          "priority": 3,
+          "estimate": "6 hours",
+          "dependencies": [],
+          "notes": "Consider disabling for first release if complexity is high"
+        },
+        {
+          "id": "US-106",
+          "phase": 1,
+          "title": "Add Haptic Feedback (Vibration API)",
+          "description": "As a mobile user, I want subtle vibration feedback when interacting with the app so it feels more tactile.",
+          "acceptanceCriteria": [
+            "Add vibration on trainer correct answer (short pulse: 50ms)",
+            "Add vibration on trainer incorrect answer (double pulse: 100ms, 50ms gap, 100ms)",
+            "Add vibration on bottom nav tap (light: 20ms)",
+            "Wrap in feature detection (check navigator.vibrate support)",
+            "Add 'Disable Haptic Feedback' toggle in settings (localStorage flag)",
+            "Test on devices that support vibration (most Android, limited iOS)"
+          ],
+          "priority": 4,
+          "estimate": "3 hours",
+          "dependencies": [],
+          "notes": "Not all devices support vibration, make it optional"
+        },
+        {
+          "id": "US-107",
+          "phase": 1,
+          "title": "Optimize Performance (Lazy Load + Code Split)",
+          "description": "As a user on 4G, I want the app to load fast so I don't wait around.",
+          "acceptanceCriteria": [
+            "Lazy load images below the fold (use next/image with priority=false)",
+            "Code-split routes (Next.js does this by default, verify)",
+            "Preload critical fonts (Inter, Playfair Display) in app/layout.tsx",
+            "Minify CSS and JS in production build",
+            "Run Lighthouse audit: Performance score >90 on mobile",
+            "Target: <2s initial load on 4G (test with Chrome DevTools throttling)",
+            "Monitor bundle size: keep <500KB total JS"
+          ],
+          "priority": 2,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "Use next build && next start to test production performance"
+        },
+        {
+          "id": "US-108",
+          "phase": 1,
+          "title": "Improve Blackjack Trainer (Difficulty Modes)",
+          "description": "As a beginner, I want to practice only hard totals first so I'm not overwhelmed by soft totals and pairs.",
+          "acceptanceCriteria": [
+            "Add difficulty selector on /blackjack/trainer: Beginner, Intermediate, Advanced",
+            "Beginner: Only hard totals (5-21)",
+            "Intermediate: Hard + soft totals",
+            "Advanced: All hands (hard + soft + pairs)",
+            "Display current difficulty at top of page",
+            "Save selected difficulty to localStorage (persist across sessions)",
+            "Update random hand generator to filter by difficulty",
+            "Test: Each mode only shows appropriate hand types"
+          ],
+          "priority": 3,
+          "estimate": "3 hours",
+          "dependencies": [],
+          "notes": "Add to existing trainer page, no new routes"
+        },
+        {
+          "id": "US-109",
+          "phase": 1,
+          "title": "Add Trainer Stats Tracking",
+          "description": "As a user practicing strategy, I want to see my accuracy by hand type so I know where to focus.",
+          "acceptanceCriteria": [
+            "Track correct/incorrect answers per session (state in trainer component)",
+            "Show running accuracy percentage at top: 'Session: 85% (17/20)'",
+            "After 10+ hands, show breakdown: 'Hard Totals: 90%, Soft Totals: 70%, Pairs: 80%'",
+            "Add 'Problem Areas' section: List hand types with <70% accuracy",
+            "Add 'Review Mistakes' button: Starts new session with only hands you've missed",
+            "Store mistake history in localStorage (last 50 hands)",
+            "Reset stats button (clear session data)"
+          ],
+          "priority": 3,
+          "estimate": "5 hours",
+          "dependencies": ["US-108"],
+          "notes": "Keep data client-side for now, no backend needed"
+        },
+        {
+          "id": "US-110",
+          "phase": 1,
+          "title": "Responsive Design Audit (All Pages)",
+          "description": "As a mobile user, I want all pages to look perfect on my phone so I don't have to zoom or scroll horizontally.",
+          "acceptanceCriteria": [
+            "Test all pages on iPhone SE (375px), standard (390px), Pro Max (430px)",
+            "Test landscape orientation (rotate strategy charts to fit)",
+            "Ensure all touch targets are min 44x44px (WCAG 2.1)",
+            "No horizontal scrolling on any page (overflow-x: hidden where needed)",
+            "Text remains readable without zooming (font-size >= 14px)",
+            "Fix any layout breaks found during testing",
+            "Document any known issues in GitHub issues for later"
+          ],
+          "priority": 2,
+          "estimate": "6 hours",
+          "dependencies": [],
+          "notes": "Use Chrome DevTools device emulation + real device testing"
+        },
+        {
+          "id": "US-111",
+          "phase": 1,
+          "title": "Accessibility Improvements",
+          "description": "As a user with visual impairments, I want to navigate the app with a screen reader so I can use it independently.",
+          "acceptanceCriteria": [
+            "Add ARIA labels to all strategy chart cells (aria-label='Hit on hard 16 vs dealer 7')",
+            "Add ARIA labels to navigation buttons and game cards",
+            "Ensure 4.5:1 contrast ratio for all text (run axe DevTools audit)",
+            "Add keyboard navigation to strategy charts (Tab + Arrow keys to navigate cells)",
+            "Add focus indicators (visible outline on interactive elements)",
+            "Test with VoiceOver (iOS) or TalkBack (Android)",
+            "Fix any errors found in Lighthouse Accessibility audit (target: score >95)"
+          ],
+          "priority": 3,
+          "estimate": "5 hours",
+          "dependencies": [],
+          "notes": "Start with automated testing (Lighthouse, axe), then manual screen reader tests"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Premium Features + Monetization",
+      "duration": "3 weeks",
+      "goal": "Build freemium paywall, card counting, advanced tools, and house edge database",
+      "userStories": [
+        {
+          "id": "US-201",
+          "phase": 2,
+          "title": "Integrate Stripe Checkout for Premium Subscriptions",
+          "description": "As a user who wants advanced features, I want to subscribe to premium so I can unlock trainer, card counting, and calculators.",
+          "acceptanceCriteria": [
+            "Create Stripe account and get API keys (test mode first)",
+            "Create two Stripe products: Monthly ($4.99/month) and Annual ($29.99/year)",
+            "Build /api/checkout route (Next.js API route) that creates Stripe checkout session",
+            "Add 'Upgrade to Premium' button on paywall modals",
+            "Clicking button → redirects to Stripe Checkout",
+            "After successful payment, redirect to /success?session_id=xxx",
+            "On success page, save premium status to localStorage (flag: 'premium: true')",
+            "Add Stripe webhook endpoint to handle subscription updates (future: use for backend sync)",
+            "Test: Complete checkout with test card, verify premium unlocked"
+          ],
+          "priority": 1,
+          "estimate": "8 hours",
+          "dependencies": [],
+          "notes": "Start with client-side flag (localStorage), no backend yet. Stripe handles recurring billing."
+        },
+        {
+          "id": "US-202",
+          "phase": 2,
+          "title": "Build Paywall Modals for Premium Features",
+          "description": "As a free user, I want to see what premium features are available so I can decide if it's worth upgrading.",
+          "acceptanceCriteria": [
+            "Create PaywallModal component with feature comparison table",
+            "Free column: Strategy charts, bet guide, hand rankings, pot odds, basic bankroll",
+            "Premium column: Trainer (unlimited), Card counting, Advanced tools, Offline mode, Ad-free",
+            "Show pricing: $4.99/month or $29.99/year (save 50%)",
+            "Add '7-day free trial' badge on annual plan",
+            "Include 'Start Free Trial' and 'Subscribe Monthly' buttons",
+            "Trigger modal when user clicks locked feature (e.g., trainer after 3 sessions)",
+            "Add 'X' close button (dismissible)",
+            "Test: Modal displays correctly on mobile and desktop"
+          ],
+          "priority": 1,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "Use Tailwind modal pattern with backdrop blur"
+        },
+        {
+          "id": "US-203",
+          "phase": 2,
+          "title": "Add Soft Paywall to Blackjack Trainer",
+          "description": "As a free user, I want to try the trainer 3 times so I can see if it's worth paying for.",
+          "acceptanceCriteria": [
+            "Track trainer session count in localStorage ('trainerSessions: 0')",
+            "Increment counter on each session start",
+            "After 3 sessions, show PaywallModal instead of starting new session",
+            "Premium users: bypass session limit (check localStorage 'premium' flag)",
+            "Add UI indicator: 'Free: 2/3 sessions remaining' at top of trainer",
+            "Reset counter if user clears localStorage (acceptable for MVP)",
+            "Test: Free user hits limit at session 4, premium user has unlimited"
+          ],
+          "priority": 2,
+          "estimate": "3 hours",
+          "dependencies": ["US-201", "US-202"],
+          "notes": "Easy to game by clearing localStorage, but acceptable for soft launch"
+        },
+        {
+          "id": "US-204",
+          "phase": 2,
+          "title": "Build Card Counting Guide Page",
+          "description": "As a premium user, I want to learn the Hi-Lo card counting system so I can improve my blackjack edge.",
+          "acceptanceCriteria": [
+            "Create /blackjack/counting page (premium-only)",
+            "Section 1: What is card counting? (brief history, legality disclaimer)",
+            "Section 2: Hi-Lo system breakdown (2-6 = +1, 7-9 = 0, 10-A = -1)",
+            "Section 3: Running count vs True count (running count ÷ decks remaining)",
+            "Section 4: Visual chart - Card values with color coding",
+            "Section 5: When to bet big (true count → bet multiplier table)",
+            "Include disclaimer: 'Casinos can and will kick you out for counting. This is educational only.'",
+            "Premium gate: Show paywall if user is not premium",
+            "Test: Premium users see full content, free users see paywall"
+          ],
+          "priority": 3,
+          "estimate": "5 hours",
+          "dependencies": ["US-201"],
+          "notes": "Keep tone educational, not 'get rich quick'. Add casino surveillance warnings."
+        },
+        {
+          "id": "US-205",
+          "phase": 2,
+          "title": "Build Card Counting Drill (Interactive Practice)",
+          "description": "As a premium user practicing card counting, I want to track the count as cards are shown so I can build accuracy.",
+          "acceptanceCriteria": [
+            "Add 'Practice Drill' section to /blackjack/counting page",
+            "Show cards one at a time (randomized from standard deck)",
+            "User inputs running count after each card (number input or +/- buttons)",
+            "Instant feedback: Green if correct, red if wrong (show correct count)",
+            "Track accuracy over 26 cards (half deck)",
+            "Display final score: 'You got 24/26 cards correct (92%)'",
+            "Add 'True Count Mode': After deck is shown, ask user to calculate true count given decks remaining",
+            "Premium-only feature (paywall if not premium)",
+            "Test: Drill logic is correct, count matches expected running count"
+          ],
+          "priority": 3,
+          "estimate": "6 hours",
+          "dependencies": ["US-204"],
+          "notes": "Start with running count drill, add true count mode as enhancement"
+        },
+        {
+          "id": "US-206",
+          "phase": 2,
+          "title": "Build Craps Optimal Betting Calculator",
+          "description": "As a premium user, I want to know how much to bet on pass line and odds based on my bankroll so I play optimally.",
+          "acceptanceCriteria": [
+            "Create /craps/calculator page (premium-only)",
+            "Input fields: Bankroll ($), Risk Tolerance (Conservative/Moderate/Aggressive)",
+            "Output: Recommended pass line bet, recommended odds bet (3x/4x/5x odds)",
+            "Show variance chart: 95% confidence interval for win/loss over 100 rolls",
+            "Comparison section: 'Your strategy (pass + odds) vs sucker bets (Any 7, Big 6/8)'",
+            "Explain calculation: 'With $500 bankroll, bet $5 pass line + $15 odds = 0.4% risk of ruin over 100 rolls'",
+            "Premium gate: Paywall if not premium",
+            "Test: Calculator gives sensible results, variance chart renders correctly"
+          ],
+          "priority": 3,
+          "estimate": "8 hours",
+          "dependencies": ["US-201"],
+          "notes": "Use Monte Carlo simulation for variance chart (1000 trials). May need backend for heavy computation."
+        },
+        {
+          "id": "US-207",
+          "phase": 2,
+          "title": "Build Poker Preflop Ranges Page",
+          "description": "As a premium poker player, I want position-specific hand charts so I know which hands to play from each position.",
+          "acceptanceCriteria": [
+            "Create /poker/ranges page (premium-only)",
+            "Show hand matrix grid (AA to 72o, 169 hands total)",
+            "Color code: Green = Raise, Yellow = Call, Red = Fold",
+            "Tabs for each position: UTG, MP, CO, BTN, SB, BB",
+            "Clicking a tab updates the matrix with position-specific ranges",
+            "Add stack depth toggle: Deep Stack (100+ BB) vs Short Stack (<40 BB)",
+            "Include 'Export as Image' button (download chart for study)",
+            "Premium gate: Paywall if not premium",
+            "Test: Ranges match GTO solver baselines (use preflop charts from upswingpoker.com as reference)"
+          ],
+          "priority": 3,
+          "estimate": "10 hours",
+          "dependencies": ["US-201"],
+          "notes": "Hand ranges data requires research. Start with tight-aggressive ranges, expand later."
+        },
+        {
+          "id": "US-208",
+          "phase": 2,
+          "title": "Build Risk of Ruin Calculator",
+          "description": "As a premium user, I want to know my probability of going broke so I can size my bankroll appropriately.",
+          "acceptanceCriteria": [
+            "Create /bankroll/risk-of-ruin page (premium-only)",
+            "Input fields: Bankroll ($), Game Type (Blackjack/Poker/Craps), Your Edge (%), Variance (std dev)",
+            "Output: Probability of ruin over N sessions (graph: 10, 50, 100, 500 sessions)",
+            "Visual: Monte Carlo simulation graph (1000 trials, show confidence bands)",
+            "Recommendations: 'Your bankroll is too small for $25 tables. Increase to $X or play $10 tables.'",
+            "Preset game types (e.g., Blackjack Basic Strategy: edge +0.5%, variance 1.15)",
+            "Premium gate: Paywall if not premium",
+            "Test: Simulation logic is correct, graph renders smoothly"
+          ],
+          "priority": 3,
+          "estimate": "10 hours",
+          "dependencies": ["US-201"],
+          "notes": "Monte Carlo sim can be client-side (Web Workers for performance). Verify math against Kelly Criterion."
+        },
+        {
+          "id": "US-209",
+          "phase": 2,
+          "title": "Build House Edge Database Page",
+          "description": "As a user, I want to search for any casino bet and see the house edge so I know which bets to avoid.",
+          "acceptanceCriteria": [
+            "Create /info page (free for all users)",
+            "Searchable table with columns: Game, Bet Type, House Edge, Notes",
+            "Populate with 50+ common bets (blackjack, craps, roulette, baccarat, slots, keno)",
+            "Examples: Blackjack (6 deck, S17, basic strategy) = 0.43%, Craps Pass Line = 1.41%, Roulette (00) = 5.26%",
+            "Filter by game (dropdown: All, Blackjack, Craps, etc.)",
+            "Sort by house edge (ascending/descending)",
+            "Highlight 'Sucker Bets' in red (house edge >5%)",
+            "Add search bar (filter by bet name)",
+            "Test: All data is accurate (cross-reference wizardofodds.com)"
+          ],
+          "priority": 2,
+          "estimate": "6 hours",
+          "dependencies": [],
+          "notes": "Free feature to drive SEO traffic. Data can be static JSON file."
+        },
+        {
+          "id": "US-210",
+          "phase": 2,
+          "title": "Add Premium Badge and Account Status",
+          "description": "As a premium user, I want to see my subscription status so I know when my trial ends or when I'm billed next.",
+          "acceptanceCriteria": [
+            "Add 'Premium ✨' badge in header (top-right) if user is premium",
+            "Badge links to /account page",
+            "Create /account page: Show subscription status, next billing date, manage subscription link (Stripe billing portal)",
+            "For trial users: Show 'Trial ends in X days' countdown",
+            "For free users: Show 'Upgrade to Premium' CTA",
+            "Add 'Manage Subscription' button → opens Stripe Customer Portal (cancel, update payment)",
+            "Test: Premium badge appears, account page shows correct data"
+          ],
+          "priority": 2,
+          "estimate": "4 hours",
+          "dependencies": ["US-201"],
+          "notes": "Use Stripe Customer Portal for subscription management (no custom UI needed)"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Launch Prep + Growth",
+      "duration": "1 week",
+      "goal": "Set up analytics, affiliate links, and prepare for public launch",
+      "userStories": [
+        {
+          "id": "US-301",
+          "phase": 3,
+          "title": "Integrate PostHog Analytics",
+          "description": "As the product owner, I want to track user behavior so I can optimize features and conversion.",
+          "acceptanceCriteria": [
+            "Create PostHog account (free tier)",
+            "Add PostHog SDK to frontend (next-posthog or posthog-js)",
+            "Track page views automatically",
+            "Track custom events: strategy_lookup (game, hand_type), trainer_session_start, trainer_session_complete, premium_upgrade_clicked, install_prompt_shown, install_prompt_accepted",
+            "Add user properties: is_premium (true/false), install_status (installed/browser)",
+            "Set up funnel: Visit → Lookup Strategy → Start Trainer → Upgrade to Premium",
+            "Test: Events fire correctly in PostHog dashboard"
+          ],
+          "priority": 1,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "PostHog free tier: 1M events/month, sufficient for MVP"
+        },
+        {
+          "id": "US-302",
+          "phase": 3,
+          "title": "Add Affiliate Links for Casino Partners",
+          "description": "As the product owner, I want to earn affiliate revenue so the app has a secondary income stream.",
+          "acceptanceCriteria": [
+            "Partner with 2-3 reputable casinos: DraftKings, BetMGM, FanDuel (apply for affiliate programs)",
+            "Add 'Recommended Casinos' section on homepage footer",
+            "Each casino card: Logo, brief description, 'Sign Up' button (affiliate link)",
+            "Add disclaimer: 'We may earn a commission. Gamble responsibly. 21+'",
+            "Add affiliate links to bottom of /blackjack, /craps, /poker pages (contextual)",
+            "Track clicks: affiliate_click event (partner_name, page)",
+            "Test: Links have correct referral parameters, clicks tracked"
+          ],
+          "priority": 2,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "Affiliate approval may take 1-2 weeks, start applications early"
+        },
+        {
+          "id": "US-303",
+          "phase": 3,
+          "title": "Create Landing Page Copy for SEO",
+          "description": "As a search user, I want to find Rain Man when searching for 'blackjack strategy app' so I can start using it.",
+          "acceptanceCriteria": [
+            "Update homepage meta tags: title='Rain Man - Blackjack Strategy & Casino Tools', description='Learn to play smarter with interactive strategy charts, card counting, and bankroll calculators. Free PWA for iOS and Android.'",
+            "Add structured data (JSON-LD) for SoftwareApplication",
+            "Add FAQ section on homepage: 'Is card counting legal?', 'What's the house edge on blackjack?', etc.",
+            "Write blog post: '7 Blackjack Mistakes Costing You Money' (link to strategy page)",
+            "Optimize for keywords: blackjack strategy, card counting app, craps betting, poker odds calculator",
+            "Submit sitemap.xml to Google Search Console",
+            "Test: Run SEO audit (Lighthouse, ahrefs free tool), fix critical issues"
+          ],
+          "priority": 2,
+          "estimate": "6 hours",
+          "dependencies": [],
+          "notes": "SEO is long-term, but foundational work starts now"
+        },
+        {
+          "id": "US-304",
+          "phase": 3,
+          "title": "Create Demo Video for Social Sharing",
+          "description": "As a potential user on Reddit, I want to see a quick demo so I know what the app does before trying it.",
+          "acceptanceCriteria": [
+            "Record 30-second demo video: 'Look up any blackjack hand in 2 seconds, practice until perfect.'",
+            "Show: Opening app → Tapping blackjack → Looking up a hand → Getting the correct play",
+            "Voiceover or text overlays explaining each step",
+            "Export as MP4 (1080p, <5MB for easy sharing)",
+            "Upload to YouTube (unlisted) and host on homepage",
+            "Share on r/blackjack, r/gambling (non-spammy, value-first post)",
+            "Test: Video plays smoothly on mobile and desktop"
+          ],
+          "priority": 3,
+          "estimate": "4 hours",
+          "dependencies": [],
+          "notes": "Use screen recording tool (Loom, OBS), add simple captions in CapCut"
+        },
+        {
+          "id": "US-305",
+          "phase": 3,
+          "title": "Set Up Conversion Funnel Tracking",
+          "description": "As the product owner, I want to see where users drop off so I can improve conversion to premium.",
+          "acceptanceCriteria": [
+            "Define funnel stages in PostHog: 1) Visit Homepage, 2) View Strategy Chart, 3) Start Trainer, 4) See Paywall, 5) Click Upgrade, 6) Complete Checkout",
+            "Create dashboard in PostHog showing funnel conversion rates",
+            "Set up alerts: Email if premium conversion drops below 1%",
+            "Track drop-off points (e.g., 'Paywall shown but not clicked = unclear value prop')",
+            "Test: Funnel tracks correctly, data matches expected user flow"
+          ],
+          "priority": 1,
+          "estimate": "3 hours",
+          "dependencies": ["US-301"],
+          "notes": "Use PostHog's built-in funnel analysis"
+        },
+        {
+          "id": "US-306",
+          "phase": 3,
+          "title": "Add Feedback Widget",
+          "description": "As a user, I want to report bugs or suggest features so the app improves over time.",
+          "acceptanceCriteria": [
+            "Add floating 'Feedback' button (bottom-right corner, above bottom nav on mobile)",
+            "Clicking opens modal with form: Name (optional), Email (optional), Message (required)",
+            "Form submits to: Typeform, Google Forms, or Tally (no backend needed for MVP)",
+            "Add 'Report Bug' and 'Feature Request' radio buttons",
+            "Thank you message after submit: 'Thanks! We read every submission.'",
+            "Test: Form submits successfully, owner receives email notification"
+          ],
+          "priority": 3,
+          "estimate": "3 hours",
+          "dependencies": [],
+          "notes": "Use free form service to avoid building backend"
+        },
+        {
+          "id": "US-307",
+          "phase": 3,
+          "title": "Soft Launch on Reddit (r/blackjack)",
+          "description": "As the product owner, I want to get early feedback from blackjack enthusiasts so I can fix issues before broad launch.",
+          "acceptanceCriteria": [
+            "Write post for r/blackjack: 'I built a free blackjack strategy app (PWA, works offline). Feedback welcome!'",
+            "Include: Link to app, screenshot of strategy chart, mention it's free",
+            "Tone: Humble, asking for feedback (not promotional)",
+            "Respond to comments within 24 hours",
+            "Track: Traffic spike in PostHog, premium conversions from Reddit users",
+            "Collect feedback, prioritize bugs/feature requests for post-launch sprint"
+          ],
+          "priority": 1,
+          "estimate": "2 hours",
+          "dependencies": ["US-301"],
+          "notes": "r/blackjack is friendly to tools, r/gambling is more skeptical. Start with blackjack."
+        },
+        {
+          "id": "US-308",
+          "phase": 3,
+          "title": "Prepare App Store Submission (Optional)",
+          "description": "As a user, I want to download Rain Man from the App Store so I can discover it like other apps.",
+          "acceptanceCriteria": [
+            "Decision point: Evaluate PWA adoption after 2 weeks (goal: 1k installs)",
+            "If PWA adoption is low, wrap app with Capacitor (turn PWA into native app)",
+            "Create App Store listing: Screenshots, description, keywords",
+            "Submit to Apple App Store and Google Play Store",
+            "Handle review process (may take 1-2 weeks)",
+            "Test: App installs correctly from stores, all features work",
+            "Monitor: Store conversion vs PWA install rate"
+          ],
+          "priority": 4,
+          "estimate": "16 hours (optional)",
+          "dependencies": ["US-307"],
+          "notes": "Only pursue if PWA adoption is weak. App stores take 30% cut of revenue."
+        }
+      ]
+    }
+  ],
+  "completedUserStories": [
+    {
+      "id": "US-001",
+      "title": "Initialize Next.js frontend with Tailwind",
+      "status": "complete",
+      "completedDate": "2024-01-15"
+    },
+    {
+      "id": "US-002",
+      "title": "Create home page with game navigation",
+      "status": "complete",
+      "completedDate": "2024-01-15"
+    },
+    {
+      "id": "US-003",
+      "title": "Build blackjack strategy data structure",
+      "status": "complete",
+      "completedDate": "2024-01-16"
+    },
+    {
+      "id": "US-004",
+      "title": "Build interactive blackjack strategy chart",
+      "status": "complete",
+      "completedDate": "2024-01-16"
+    },
+    {
+      "id": "US-005",
+      "title": "Build blackjack hand lookup tool",
+      "status": "complete",
+      "completedDate": "2024-01-17"
+    },
+    {
+      "id": "US-006",
+      "title": "Add blackjack training mode",
+      "status": "complete",
+      "completedDate": "2024-01-18"
+    },
+    {
+      "id": "US-007",
+      "title": "Build craps bet explainer with house edges",
+      "status": "complete",
+      "completedDate": "2024-01-20"
+    },
+    {
+      "id": "US-008",
+      "title": "Build poker hand rankings page",
+      "status": "complete",
+      "completedDate": "2024-01-21"
+    },
+    {
+      "id": "US-009",
+      "title": "Build poker pot odds calculator",
+      "status": "complete",
+      "completedDate": "2024-01-22"
+    },
+    {
+      "id": "US-010",
+      "title": "Build bankroll session calculator",
+      "status": "complete",
+      "completedDate": "2024-01-23"
+    }
+  ],
+  "summary": {
+    "totalNewStories": 29,
+    "phase1Stories": 11,
+    "phase2Stories": 10,
+    "phase3Stories": 8,
+    "estimatedTotalHours": 145,
+    "criticalPath": [
+      "US-101 (Manifest)",
+      "US-102 (Service Worker)",
+      "US-201 (Stripe)",
+      "US-202 (Paywall)",
+      "US-301 (Analytics)",
+      "US-307 (Soft Launch)"
+    ]
+  },
+  "notes": "All stories are prioritized within each phase. Start with P1 stories, then P2, then P3. Phase 1 is launch-blocking. Phase 2 drives revenue. Phase 3 enables growth. Estimated timeline: 6 weeks total (2+3+1)."
+}
