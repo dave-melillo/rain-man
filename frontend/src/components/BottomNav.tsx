@@ -19,7 +19,7 @@ export default function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-casino-dark/95 backdrop-blur-sm border-t border-casino-card md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-light border-t border-white/10 md:hidden">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const active = isActive(item.href);
@@ -29,23 +29,31 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={`
-                flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg
-                transition-all duration-150 ease-in-out
+                relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg
+                transition-all duration-200 ease-out
                 min-w-[64px] min-h-[44px]
                 ${active 
-                  ? 'text-casino-gold' 
-                  : 'text-gray-400 hover:text-gray-300'
+                  ? 'text-casino-gold scale-110' 
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-white/5'
                 }
               `}
             >
-              <span className={`text-2xl transition-transform ${active ? 'scale-110' : ''}`}>
+              {/* Icon with bounce animation on active */}
+              <span className={`text-2xl transition-all duration-200 ${
+                active ? 'scale-110 animate-bounce-once' : ''
+              }`}>
                 {item.icon}
               </span>
-              <span className={`text-xs font-medium ${active ? 'font-semibold' : ''}`}>
+              
+              <span className={`text-xs font-medium transition-all ${
+                active ? 'font-bold' : ''
+              }`}>
                 {item.label}
               </span>
+              
+              {/* Active indicator - more prominent */}
               {active && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-casino-gold rounded-t-full" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-transparent via-casino-gold to-transparent rounded-t-full animate-slide-up" />
               )}
             </Link>
           );

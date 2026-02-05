@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Spinner from "./Spinner";
 
 const CARDS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 const DEALER_CARDS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "A"];
@@ -136,6 +137,7 @@ export default function QuickLookup() {
   const [card2, setCard2] = useState<string | null>(null);
   const [dealerCard, setDealerCard] = useState<string | null>(null);
   const [result, setResult] = useState<{ action: string; explanation: string; type: string } | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const handleCardSelect = (card: string, position: "card1" | "card2" | "dealer") => {
     if (position === "card1") {
@@ -145,12 +147,20 @@ export default function QuickLookup() {
     } else {
       setDealerCard(card);
     }
+    // Reset result when changing cards
+    setResult(null);
   };
 
   const calculateStrategy = () => {
     if (card1 && card2 && dealerCard) {
-      const strategy = getStrategy(card1, card2, dealerCard);
-      setResult(strategy);
+      setIsCalculating(true);
+      
+      // Simulate brief calculation time for visual feedback
+      setTimeout(() => {
+        const strategy = getStrategy(card1, card2, dealerCard);
+        setResult(strategy);
+        setIsCalculating(false);
+      }, 200);
     }
   };
 
@@ -159,30 +169,34 @@ export default function QuickLookup() {
     setCard2(null);
     setDealerCard(null);
     setResult(null);
+    setIsCalculating(false);
   };
 
   // Auto-calculate when all cards selected
-  if (card1 && card2 && dealerCard && !result) {
+  if (card1 && card2 && dealerCard && !result && !isCalculating) {
     calculateStrategy();
   }
 
   return (
-    <div className="bg-casino-darker rounded-xl p-6">
-      <h3 className="text-xl font-semibold text-white mb-6 text-center">🔍 Quick Lookup</h3>
+    <div className="card-elevated p-6">
+      <h3 className="text-xl font-semibold text-white mb-6 text-center flex items-center justify-center gap-2">
+        <span className="text-2xl">🔍</span>
+        Quick Lookup
+      </h3>
       
       {/* Card Selection */}
       <div className="space-y-6">
         {/* Your Cards */}
         <div>
-          <label className="block text-sm text-gray-400 mb-2">Your First Card</label>
+          <label className="block text-sm font-medium text-gray-400 mb-2">Your First Card</label>
           <div className="flex flex-wrap gap-2">
             {CARDS.map((card) => (
               <button
                 key={`c1-${card}`}
                 onClick={() => handleCardSelect(card, "card1")}
-                className={`w-11 h-12 rounded-lg font-bold transition-all ${
+                className={`w-11 h-12 rounded-lg font-bold transition-all duration-200 touch-target hover-scale active:scale-95 ${
                   card1 === card
-                    ? "bg-casino-gold text-black"
+                    ? "bg-casino-gold text-black shadow-md shadow-casino-gold/50"
                     : "bg-casino-card text-white hover:bg-casino-felt"
                 }`}
                 aria-label={`Select ${card} as first card`}
@@ -194,15 +208,15 @@ export default function QuickLookup() {
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-2">Your Second Card</label>
+          <label className="block text-sm font-medium text-gray-400 mb-2">Your Second Card</label>
           <div className="flex flex-wrap gap-2">
             {CARDS.map((card) => (
               <button
                 key={`c2-${card}`}
                 onClick={() => handleCardSelect(card, "card2")}
-                className={`w-11 h-12 rounded-lg font-bold transition-all ${
+                className={`w-11 h-12 rounded-lg font-bold transition-all duration-200 touch-target hover-scale active:scale-95 ${
                   card2 === card
-                    ? "bg-casino-gold text-black"
+                    ? "bg-casino-gold text-black shadow-md shadow-casino-gold/50"
                     : "bg-casino-card text-white hover:bg-casino-felt"
                 }`}
                 aria-label={`Select ${card} as second card`}
@@ -214,15 +228,15 @@ export default function QuickLookup() {
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-2">Dealer's Up Card</label>
+          <label className="block text-sm font-medium text-gray-400 mb-2">Dealer's Up Card</label>
           <div className="flex flex-wrap gap-2">
             {DEALER_CARDS.map((card) => (
               <button
                 key={`d-${card}`}
                 onClick={() => handleCardSelect(card, "dealer")}
-                className={`w-11 h-12 rounded-lg font-bold transition-all ${
+                className={`w-11 h-12 rounded-lg font-bold transition-all duration-200 touch-target hover-scale active:scale-95 ${
                   dealerCard === card
-                    ? "bg-casino-felt-light text-white ring-2 ring-casino-gold"
+                    ? "bg-casino-felt-light text-white ring-2 ring-casino-gold shadow-lg"
                     : "bg-casino-card text-white hover:bg-casino-felt"
                 }`}
                 aria-label={`Select dealer ${card}`}
@@ -234,16 +248,25 @@ export default function QuickLookup() {
         </div>
       </div>
 
+      {/* Loading State */}
+      {isCalculating && (
+        <div className="mt-6 flex justify-center">
+          <Spinner />
+        </div>
+      )}
+
       {/* Result */}
-      {result && (
-        <div className="mt-6 text-center">
-          <div className="text-sm text-gray-400 mb-2">{result.explanation}</div>
-          <div className={`inline-block px-8 py-4 rounded-xl text-2xl font-bold text-white ${ACTION_COLORS[result.action]}`}>
+      {result && !isCalculating && (
+        <div className="mt-6 text-center animate-fade-in">
+          <div className="text-sm text-gray-400 mb-2 animate-fade-in">
+            {result.explanation}
+          </div>
+          <div className={`inline-block px-8 py-4 rounded-xl text-2xl font-bold text-white ${ACTION_COLORS[result.action]} shadow-lg animate-flip-in`}>
             {ACTION_NAMES[result.action]}
           </div>
           <button
             onClick={reset}
-            className="block mx-auto mt-4 text-sm text-gray-400 hover:text-casino-gold transition-colors"
+            className="block mx-auto mt-4 text-sm text-gray-400 hover:text-casino-gold transition-colors duration-200 hover:scale-105 active:scale-95"
           >
             ↻ Reset
           </button>

@@ -27,21 +27,21 @@ export const viewport = {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-50 bg-casino-dark/95 backdrop-blur-sm border-b border-casino-card">
+    <header className="sticky top-0 z-50 glass border-b border-white/10">
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-display text-2xl font-bold text-gold-gradient">
+        <Link href="/" className="font-display text-2xl font-bold text-gold-gradient hover:scale-105 transition-transform">
           Rain Man
         </Link>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6">
           <Link
             href="/blackjack"
-            className="text-gray-400 hover:text-white transition-colors text-sm font-medium"
+            className="text-gray-300 hover:text-white transition-colors duration-200 text-sm font-medium hidden sm:block"
           >
             Blackjack
           </Link>
           <Link
             href="/blackjack/strategy"
-            className="bg-casino-gold hover:bg-casino-gold-dark text-black px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+            className="bg-casino-gold hover:bg-casino-gold-dark text-black px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-gold active:scale-95 shadow-md"
           >
             Strategy Chart
           </Link>

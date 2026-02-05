@@ -77,14 +77,20 @@ function StrategyCell({ action, playerHand, dealerCard, onSelect, isSelected }: 
     <button
       onClick={() => onSelect(String(playerHand), String(dealerCard), action)}
       className={`
-        strategy-cell w-11 h-11 md:w-12 md:h-12 rounded-md font-bold text-white text-sm
+        group relative w-11 h-11 md:w-12 md:h-12 rounded-lg font-bold text-white text-sm
+        transition-all duration-200 ease-out
         ${ACTION_COLORS[action]}
-        ${isSelected ? "ring-2 ring-casino-gold ring-offset-2 ring-offset-casino-dark scale-110 z-10" : ""}
-        shadow-sm
+        ${isSelected 
+          ? "ring-4 ring-casino-gold ring-offset-2 ring-offset-casino-dark scale-110 z-10 shadow-xl shadow-casino-gold/50" 
+          : "hover:scale-105 hover:shadow-lg active:scale-95"
+        }
       `}
       aria-label={`${ACTION_NAMES[action]} for ${playerHand} vs dealer ${dealerCard}`}
     >
       {action}
+      
+      {/* Subtle shine effect on hover */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
     </button>
   );
 }
@@ -127,10 +133,10 @@ export default function StrategyChart() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-3 rounded-lg font-semibold capitalize transition-all ${
+            className={`px-6 py-3 rounded-lg font-semibold capitalize transition-all duration-200 active:scale-95 touch-target ${
               activeTab === tab
-                ? "bg-casino-gold text-black"
-                : "bg-casino-card text-gray-300 hover:bg-casino-felt"
+                ? "bg-casino-gold text-black shadow-md hover:shadow-lg hover:shadow-casino-gold/50"
+                : "bg-casino-card text-gray-300 hover:bg-casino-felt hover:text-white border-2 border-casino-card hover:border-casino-felt-light"
             }`}
           >
             {tab === "hard" ? "Hard Totals" : tab === "soft" ? "Soft Totals" : "Pairs"}
@@ -140,15 +146,15 @@ export default function StrategyChart() {
 
       {/* Selection Display */}
       {selection && (
-        <div className="bg-casino-card rounded-xl p-6 text-center">
-          <div className="text-sm text-gray-400 mb-2">Your Play:</div>
-          <div className="text-2xl font-bold text-white mb-2">
+        <div className="card-elevated p-6 text-center animate-fade-in">
+          <div className="text-sm text-gray-400 mb-2 animate-fade-in">Your Play:</div>
+          <div className="text-2xl font-bold text-white mb-3">
             {activeTab === "pairs" ? `Pair of ${selection.playerHand.split(",")[0]}s` : 
              activeTab === "soft" ? `Soft ${selection.playerHand}` : 
              `Hard ${selection.playerHand}`}
             {" "}vs Dealer {selection.dealerCard}
           </div>
-          <div className={`inline-block px-6 py-2 rounded-lg text-lg font-bold text-white ${ACTION_COLORS[selection.action]}`}>
+          <div className={`inline-block px-8 py-4 rounded-xl text-2xl font-bold text-white ${ACTION_COLORS[selection.action]} shadow-lg animate-flip-in`}>
             {ACTION_NAMES[selection.action]}
           </div>
         </div>
@@ -298,13 +304,16 @@ export default function StrategyChart() {
       </div>
 
       {/* Tips */}
-      <div className="bg-casino-darker rounded-xl p-6 mt-8">
-        <h3 className="text-lg font-semibold text-casino-gold mb-3">💡 Pro Tips</h3>
-        <ul className="space-y-2 text-gray-300 text-sm">
-          <li>• <strong>Always split Aces and 8s</strong> — two chances to get 21 or escape a bad 16</li>
-          <li>• <strong>Never split 10s or 5s</strong> — 20 is great, and 10 is better for doubling</li>
-          <li>• <strong>Dealer 2-6 is "busting"</strong> — stand on more hands, let them bust</li>
-          <li>• <strong>Surrender saves money</strong> — giving up half is better than losing it all</li>
+      <div className="card-elevated p-6 mt-8">
+        <h3 className="text-lg font-semibold text-casino-gold mb-3 flex items-center gap-2">
+          <span className="text-2xl">💡</span>
+          Pro Tips
+        </h3>
+        <ul className="space-y-2 text-gray-300 text-sm leading-relaxed">
+          <li>• <strong className="text-white">Always split Aces and 8s</strong> — two chances to get 21 or escape a bad 16</li>
+          <li>• <strong className="text-white">Never split 10s or 5s</strong> — 20 is great, and 10 is better for doubling</li>
+          <li>• <strong className="text-white">Dealer 2-6 is "busting"</strong> — stand on more hands, let them bust</li>
+          <li>• <strong className="text-white">Surrender saves money</strong> — giving up half is better than losing it all</li>
         </ul>
       </div>
     </div>
