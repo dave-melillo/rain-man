@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Rain Man</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0d0d1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 500px;
+      text-align: center;
+    }
+    
+    .icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+    
+    h1 {
+      color: #ffc107;
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      color: #9ca3af;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .cached-info {
+      background: #0f3d3e;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 32px;
+      text-align: left;
+    }
+    
+    .cached-info h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #ffc107;
+    }
+    
+    .cached-info ul {
+      list-style: none;
+    }
+    
+    .cached-info li {
+      padding: 8px 0;
+      color: #d1d5db;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .cached-info li:last-child {
+      border-bottom: none;
+    }
+    
+    .cached-info li::before {
+      content: '✓ ';
+      color: #ffc107;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .retry-btn {
+      display: inline-block;
+      background: #ffc107;
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 20px;
+      transition: background 0.2s;
+    }
+    
+    .retry-btn:hover {
+      background: #ffb300;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>
+      No internet connection detected. But don't worry — Rain Man's core features are cached and available offline.
+    </p>
+    
+    <div class="cached-info">
+      <h2>Available Offline:</h2>
+      <ul>
+        <li>Blackjack Basic Strategy Chart</li>
+        <li>Craps Bet Guide</li>
+        <li>Poker Hand Rankings</li>
+        <li>Bankroll Calculator</li>
+      </ul>
+    </div>
+    
+    <a href="/" class="retry-btn" onclick="location.reload(); return false;">
+      Try Again
+    </a>
+  </div>
+  
+  <script>
+    // Check if connection is restored
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>
