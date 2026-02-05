@@ -26,8 +26,7 @@
           "priority": 1,
           "estimate": "4 hours",
           "dependencies": [],
-          "notes": "Use a simple icon generator for MVP, refine design later",
-          "passes": true
+          "notes": "Use a simple icon generator for MVP, refine design later"
         },
         {
           "id": "US-102",

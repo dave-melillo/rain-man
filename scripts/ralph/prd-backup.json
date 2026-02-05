@@ -1,0 +1,103 @@
+{
+  "project": "RainMan",
+  "branchName": "ralph/mvp-blackjack",
+  "description": "Rain Man Casino Strategy App - MVP focusing on blackjack strategy",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Initialize Next.js frontend with Tailwind",
+      "description": "As a developer, I need the frontend scaffolding set up with dark casino theme.",
+      "acceptanceCriteria": [
+        "Next.js 14 app created in /frontend with App Router",
+        "Tailwind CSS configured with dark theme colors (#1a1a2e bg, #0f3d3e felt green, #ffc107 gold)",
+        "Basic layout component with header",
+        "npm run dev works without errors",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create home page with game navigation",
+      "description": "As a user, I want to see available games and navigate to each section.",
+      "acceptanceCriteria": [
+        "Home page at / with Rain Man branding",
+        "Navigation cards for: Blackjack, Craps, Poker, Bankroll",
+        "Cards have hover effects and casino aesthetic",
+        "Mobile responsive layout",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Build blackjack strategy data structure",
+      "description": "As a developer, I need the complete basic strategy chart data.",
+      "acceptanceCriteria": [
+        "Create /frontend/lib/blackjack-strategy.ts",
+        "Complete basic strategy for hard totals (5-21)",
+        "Complete basic strategy for soft totals (A,2 through A,9)",
+        "Complete basic strategy for pairs",
+        "Actions: H (hit), S (stand), D (double), P (split), Ds (double/stand)",
+        "Data structured by player hand and dealer upcard (2-A)",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Build interactive blackjack strategy chart",
+      "description": "As a user, I want to look up the correct play for any blackjack hand.",
+      "acceptanceCriteria": [
+        "Page at /blackjack/strategy",
+        "Visual chart showing all hands vs dealer upcards",
+        "Color coded: green=stand, red=hit, yellow=double, blue=split",
+        "Tapping a cell shows explanation of the play",
+        "Mobile friendly - scrollable/zoomable",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Build blackjack hand lookup tool",
+      "description": "As a user, I want to quickly input my hand and get the correct play.",
+      "acceptanceCriteria": [
+        "Input section above or beside the chart",
+        "Select your two cards (dropdowns or card buttons)",
+        "Select dealer's upcard",
+        "Instantly shows: recommended action + brief explanation",
+        "Highlights the corresponding cell in the chart",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Add blackjack training mode",
+      "description": "As a user, I want to practice basic strategy with flashcards.",
+      "acceptanceCriteria": [
+        "Page at /blackjack/trainer",
+        "Shows random hand + dealer upcard",
+        "User selects action (Hit/Stand/Double/Split)",
+        "Shows correct/incorrect feedback",
+        "Tracks session accuracy percentage",
+        "Option to focus on problem areas (hands you miss)",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

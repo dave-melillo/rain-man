@@ -4,5 +4,37 @@
 Casino strategy app focusing on blackjack basic strategy.
 Tech: Next.js 14 + Tailwind (frontend), FastAPI optional for backend later.
 
+## Codebase Patterns
+- Use `source ~/.nvm/nvm.sh && nvm use v24.13.0` before running npm/npx commands
+- Tailwind theme colors are in `frontend/tailwind.config.ts` under `colors.casino`
+- Use `text-gold-gradient` class for gold gradient text effect
+- Layout is in `frontend/src/app/layout.tsx` with sticky header
+
 ## Iteration Log
-(Ralph will append learnings here)
+
+## 2026-01-28 - US-001
+- What was implemented: Added Header component to root layout with navigation
+- Files changed: `frontend/src/app/layout.tsx`
+- **Learnings for future iterations:**
+  - Frontend scaffolding was already present (Next.js 14, Tailwind, App Router)
+  - Node is installed via nvm at v24.13.0, must source nvm.sh before running npm
+  - Custom Tailwind colors available: casino-dark, casino-darker, casino-card, casino-felt, casino-gold
+  - `text-gold-gradient` custom class available for branding
+---
+
+## 2026-01-30 02:10 - US-101
+- What was implemented: Generated proper 192x192 and 512x512 PWA icons from existing SVG icon
+- Files changed:
+  - `frontend/public/icon-192.png` - Regenerated from SVG at proper size (5.7KB)
+  - `frontend/public/icon-512.png` - Regenerated from SVG at proper size (20KB)
+  - `frontend/scripts/generate-icons.js` - Created script using sharp to convert SVG to PNG
+  - `frontend/package.json` & `frontend/package-lock.json` - Added sharp dependency
+- **Learnings for future iterations:**
+  - PWA infrastructure was already in place (manifest.json, service worker registration, Apple PWA meta tags)
+  - The manifest.json was already configured correctly with theme_color (#0f3d3e) and all required fields
+  - Only the icon files needed regeneration (were 70-byte placeholders)
+  - Sharp library works well for SVG to PNG conversion at different sizes
+  - Must source nvm before running npm commands: `source ~/.nvm/nvm.sh && nvm use v24.13.0`
+  - Icon generation script location: `frontend/scripts/generate-icons.js`
+  - Casino theme colors defined in `frontend/tailwind.config.ts` under `colors.casino`
+---
